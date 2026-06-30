@@ -73,6 +73,36 @@
         .header h1 { font-size: 28px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
         .gradient-text { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .theme-toggle { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 12px; padding: 10px; cursor: pointer; color: var(--text-primary); transition: 0.3s; }
+
+        /* Botón de seguridad — candado */
+        .vault-lock-toggle {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+            line-height: 0;
+            position: relative;
+        }
+        .vault-lock-toggle::after {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 13px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            background: transparent;
+            box-shadow: 0 0 16px rgba(74, 158, 255, 0.4);
+        }
+        .vault-lock-toggle.lock-on {
+            background: linear-gradient(135deg, rgba(74,158,255,0.15), rgba(107,93,211,0.15));
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        .vault-lock-toggle.lock-on::after { opacity: 1; }
+        .vault-lock-toggle:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
         
         /* Tabs */
         .tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid var(--border); overflow-x: auto; padding-bottom: 10px; }
@@ -307,7 +337,8 @@
 <script>
     // Si este dispositivo ya desbloqueó antes, no se vuelve a pedir la contraseña
     (function() {
-        if (localStorage.getItem('finanzas_pro_unlocked') === 'true') {
+        const alwaysAsk = localStorage.getItem('finanzas_vault_always_ask') === 'true';
+        if (!alwaysAsk && localStorage.getItem('finanzas_pro_unlocked') === 'true') {
             document.getElementById('vault-overlay').style.display = 'none';
             window.__pendingUnlock = true;
         }
@@ -338,7 +369,10 @@
 <div class="container">
     <div class="header">
         <h1><span>💰</span> <span class="gradient-text">Control Financiero Personal</span></h1>
-        <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="moon" aria-hidden="true" class="lucide lucide-moon"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg></button>
+        <div style="display:flex; gap:8px; align-items:center;">
+            <button class="vault-lock-toggle" onclick="toggleVaultLock()" id="vault-lock-btn" title="Pedir contraseña siempre al entrar"></button>
+            <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="moon" aria-hidden="true" class="lucide lucide-moon"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg></button>
+        </div>
     </div>
 
     <div class="balance-section">
@@ -2202,6 +2236,7 @@
         appState.budgetView = view;
         document.getElementById('btn-view-h').classList.toggle('active', view === 'horizontal');
         document.getElementById('btn-view-v').classList.toggle('active', view === 'vertical');
+        renderPresupuestos();
         syncData();
     }
 
@@ -2840,6 +2875,29 @@
 
     function applyTheme() {
         document.getElementById('theme-btn').innerHTML = '<i data-lucide="moon"></i>';
+        applyVaultLockBtn();
+    }
+
+    function toggleVaultLock() {
+        const current = localStorage.getItem('finanzas_vault_always_ask') === 'true';
+        localStorage.setItem('finanzas_vault_always_ask', String(!current));
+        applyVaultLockBtn();
+    }
+
+    function applyVaultLockBtn() {
+        const isOn = localStorage.getItem('finanzas_vault_always_ask') === 'true';
+        const btn = document.getElementById('vault-lock-btn');
+        if (!btn) return;
+        if (isOn) {
+            btn.classList.add('lock-on');
+            btn.innerHTML = '<i data-lucide="lock"></i>';
+            btn.title = 'Contraseña activa: se pide siempre al entrar';
+        } else {
+            btn.classList.remove('lock-on');
+            btn.innerHTML = '<i data-lucide="lock-open"></i>';
+            btn.title = 'Contraseña inactiva: entras directo';
+        }
+        lucide.createIcons();
     }
 
     window.onload = init;
