@@ -269,93 +269,74 @@
         .month-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
         @media (max-width: 600px) { .month-detail-grid { grid-template-columns: 1fr; } }
 
-        /* ====================================================
+        /* ================================================================
            DISEÑO MÓVIL — solo pantallas ≤ 768px
            El diseño de escritorio no se toca en absoluto.
-        ==================================================== */
+        ================================================================ */
         @media (max-width: 768px) {
 
-            /* Contenedor general: menos margen lateral */
+            /* Contenedor general */
             .container { padding: 12px; }
 
-            /* --- Header compacto --- */
+            /* Header compacto */
             .header { padding: 14px 0 10px; margin-bottom: 14px; }
-            .header h1 { font-size: 17px; gap: 6px; }
-            .theme-toggle,
-            .vault-lock-toggle { padding: 7px; border-radius: 10px; }
-            .theme-toggle svg,
-            .vault-lock-toggle svg { width: 18px; height: 18px; }
+            .header h1 { font-size: 17px; }
+            .theme-toggle, .vault-lock-toggle { padding: 7px; border-radius: 10px; }
+            .theme-toggle svg, .vault-lock-toggle svg { width: 18px; height: 18px; }
 
-            /* --- Saldos: columna única, tarjetas compactas --- */
-            .balance-section {
-                grid-template-columns: 1fr;
-                gap: 10px;
-                margin-bottom: 16px;
-            }
-            .balance-card { padding: 14px 16px; border-radius: var(--radius-md); }
+            /* Saldos: columna única, tarjetas compactas */
+            .balance-section { grid-template-columns: 1fr; gap: 10px; margin-bottom: 16px; }
+            .balance-card { padding: 14px 16px; }
             .balance-card.total { padding: 16px; }
             .balance-amount { font-size: 26px; }
             .balance-label { font-size: 11px; margin-bottom: 4px; }
 
-            /* --- Tabs: se comprimen, caben los 5 sin cortes --- */
+            /* Tabs: sin cortes */
             .tabs { gap: 4px; padding-bottom: 8px; margin-bottom: 16px; }
-            .tab { padding: 8px 10px; font-size: 12px; gap: 4px; }
-            .tab svg { width: 15px; height: 15px; }
+            .tab { padding: 8px 9px; font-size: 12px; gap: 4px; }
+            .tab svg { width: 14px; height: 14px; }
 
-            /* --- Paneles: menos padding --- */
+            /* Paneles */
             .glass-panel { padding: 14px; margin-bottom: 16px; }
-            .section-header { margin-bottom: 14px; gap: 10px; }
+            .section-header { margin-bottom: 12px; }
             .section-title { font-size: 15px; }
 
-            /* --- Formulario de nueva transacción --- */
+            /* Formulario nueva transacción */
             .form-grid { grid-template-columns: 1fr; gap: 12px; }
-            .form-group[style*="grid-column: span 2"] { grid-column: span 1 !important; }
 
-            /* --- Lista de transacciones: layout de 2 filas en móvil ---
-               Fila 1: emoji + descripción + monto
-               Fila 2: fecha, método, botones            --- */
+            /* ---- Historial de transacciones ----
+               En móvil cambia de grid 5 columnas a grid 2 filas:
+               Fila 1: descripción (ocupa espacio) | monto | botones
+               Fila 2: fecha | método
+            ---------------------------------------- */
             .transaction-item {
-                display: flex;
-                flex-direction: column;
-                gap: 6px;
+                display: grid;
+                grid-template-columns: 1fr auto auto;
+                grid-template-rows: auto auto;
+                grid-template-areas:
+                    "main   amount actions"
+                    "date   method method";
+                gap: 4px 8px;
                 padding: 12px;
             }
-            .tx-main { gap: 8px; }
-            .tx-cat-emoji { font-size: 20px; }
-            .tx-desc { font-size: 13px; }
-            .tx-date { font-size: 11px; }
-            .tx-amount { font-size: 16px; text-align: left; }
+            .tx-date    { grid-area: date; font-size: 11px; align-self: center; }
+            .tx-main    { grid-area: main; min-width: 0; }
+            .tx-method  { grid-area: method; font-size: 11px; text-align: right; align-self: center; }
+            .tx-amount  { grid-area: amount; font-size: 15px; text-align: right; align-self: center; white-space: nowrap; }
+            .tx-actions { grid-area: actions; align-self: center; }
+            .tx-desc    { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .tx-cat-emoji { font-size: 18px; }
+            .btn-icon   { padding: 6px; }
 
-            /* Fila inferior dentro de cada transacción */
-            .transaction-item .tx-row-bottom {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                width: 100%;
-            }
-
-            /* Monto + botones en la misma fila */
-            .transaction-item .tx-right {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                margin-left: auto;
-            }
-
-            /* --- Botones de acción más pequeños --- */
-            .btn-icon { padding: 6px; }
-            .btn-icon svg,
-            .btn-icon i { width: 15px !important; height: 15px !important; }
-
-            /* --- Préstamos: una columna --- */
+            /* Préstamos */
             #prestamos-list { grid-template-columns: 1fr !important; }
 
-            /* --- Tabla resumen: scroll horizontal --- */
+            /* Resumen */
             .summary-grid { grid-template-columns: 1fr; gap: 12px; }
             .excel-table { font-size: 12px; }
-            .excel-table th, .excel-table td { padding: 10px 8px; }
+            .excel-table th, .excel-table td { padding: 8px 6px; }
 
-            /* --- Modales: pantalla casi completa --- */
+            /* Modales */
             .modal-content {
                 padding: 20px 16px;
                 max-width: 100%;
@@ -1927,7 +1908,7 @@
 
     // --- Puente con Firebase (la conexión real vive en un bloque aparte) ---
 
-    // Firebase convierte los arrays JS a objetos con claves numéricas al guardarlos.
+    // Firebase convierte arrays JS a objetos con claves numéricas al guardarlos.
     // Esta función los devuelve a arrays correctos antes de usarlos.
     function firebaseToArray(val) {
         if (!val) return [];
@@ -1942,7 +1923,6 @@
         appState.presupuestos  = firebaseToArray(appState.presupuestos);
         appState.metas         = firebaseToArray(appState.metas);
         appState.transacciones = firebaseToArray(appState.transacciones);
-        // Arrays anidados dentro de cada transacción y cada meta
         appState.transacciones.forEach(t => { if (!Array.isArray(t.tagIds)) t.tagIds = firebaseToArray(t.tagIds); });
         appState.metas.forEach(m => { if (!Array.isArray(m.aportes)) m.aportes = firebaseToArray(m.aportes); });
         localStorage.setItem('finanzas_pro_v10', JSON.stringify(appState));
@@ -2268,28 +2248,24 @@
             
             return `
                 <div class="transaction-item">
-                    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-                        <div class="tx-main">
-                            <span class="tx-cat-emoji" style="color:${cat.color}">${cat.emoji || '📦'}</span>
-                            <div>
-                                <div class="tx-desc">${t.descripcion}</div>
-                                <div style="font-size: 12px; color: var(--text-secondary); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 2px;">
-                                    <strong style="color: ${cat.color}">${cat.nombre || 'Sin categoría'}</strong>
-                                    <div class="tx-tags-container">${tagsHtml}</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
-                            <div class="tx-amount num-font ${t.tipo}">${isPos ? '+' : '-'}${formatMoney(t.monto)}</div>
-                            <div class="tx-actions">
-                                <button class="btn-icon edit" onclick="openEditTx(${t.id})" title="Editar"><i data-lucide="pencil" style="width:18px;height:18px"></i></button>
-                                <button class="btn-icon delete" onclick="deleteTx(${t.id})" title="Eliminar"><i data-lucide="trash-2" style="width:18px;height:18px"></i></button>
+                    <div class="tx-date">${formatDateForDisplay(t.fecha)}</div>
+                    <div class="tx-main">
+                        <span class="tx-cat-emoji" style="color:${cat.color}">${cat.emoji || '📦'}</span>
+                        <div>
+                            <div class="tx-desc">${t.descripcion}</div>
+                            <div style="font-size: 12px; color: var(--text-secondary); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 2px;">
+                                <strong style="color: ${cat.color}">${cat.nombre || 'Sin categoría'}</strong>
+                                <div class="tx-tags-container">${tagsHtml}</div>
                             </div>
                         </div>
                     </div>
-                    <div style="display:flex; gap:12px; align-items:center;">
-                        <div class="tx-date">${formatDateForDisplay(t.fecha)}</div>
-                        <div style="font-size: 12px; color: var(--text-muted);">${t.metodo}</div>
+                    <div class="tx-method" style="font-size: 12px; color: var(--text-muted);">${t.metodo}</div>
+                    <div class="tx-amount num-font ${t.tipo}">
+                        ${isPos ? '+' : '-'}${formatMoney(t.monto)}
+                    </div>
+                    <div class="tx-actions">
+                        <button class="btn-icon edit" onclick="openEditTx(${t.id})" title="Editar"><i data-lucide="pencil" style="width:18px;height:18px"></i></button>
+                        <button class="btn-icon delete" onclick="deleteTx(${t.id})" title="Eliminar"><i data-lucide="trash-2" style="width:18px;height:18px"></i></button>
                     </div>
                 </div>
             `;
