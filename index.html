@@ -194,7 +194,7 @@
         .tx-date { font-size: 13px; color: var(--text-muted); font-weight: 500; }
         .tx-cat-emoji { font-size: 24px; display: inline-block; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .tx-main { display: flex; align-items: center; gap: 12px; }
-        .tx-desc { font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px;}
+        .tx-desc { font-weight: 600; color: var(--text-primary); line-height: 1.5; max-height: 3em; overflow: hidden; word-break: break-word; }
         .tx-tags-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
         .tx-tag { font-size: 11px; padding: 3px 8px; border-radius: 12px; background: var(--bg-tertiary); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid var(--border); }
         .tx-amount { font-size: 18px; text-align: right; }
@@ -311,7 +311,7 @@
             ---------------------------------------- */
             .transaction-item {
                 display: grid;
-                grid-template-columns: 1fr auto auto;
+                grid-template-columns: minmax(0, 1fr) auto auto;
                 grid-template-rows: auto auto;
                 grid-template-areas:
                     "main   amount actions"
@@ -321,10 +321,28 @@
             }
             .tx-date    { grid-area: date; font-size: 11px; align-self: center; }
             .tx-main    { grid-area: main; min-width: 0; }
+            .tx-main > div { min-width: 0; overflow: hidden; }
             .tx-method  { grid-area: method; font-size: 11px; text-align: right; align-self: center; }
             .tx-amount  { grid-area: amount; font-size: 15px; text-align: right; align-self: center; white-space: nowrap; }
             .tx-actions { grid-area: actions; align-self: center; }
-            .tx-desc    { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .tx-desc    { font-size: 13px; line-height: 1.5; max-height: 3em; overflow: hidden; word-break: break-word; white-space: normal; transition: max-height 0.32s ease; }
+            .tx-desc.expanded { max-height: 600px; }
+            .tx-ver-mas-btn {
+                display: none;
+                background: none;
+                border: none;
+                color: var(--accent-primary);
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.6px;
+                text-transform: uppercase;
+                font-family: 'Space Grotesk', sans-serif;
+                cursor: pointer;
+                padding: 5px 0 2px;
+                opacity: 0.75;
+                transition: opacity 0.2s;
+            }
+            .tx-ver-mas-btn:active { opacity: 0.5; }
             .tx-cat-emoji { font-size: 18px; }
             .btn-icon   { padding: 6px; }
 
@@ -2271,6 +2289,7 @@
             `;
         }).join('');
         lucide.createIcons();
+        checkTxDescOverflow();
     }
 
     function deleteTx(id) {
@@ -2989,6 +3008,32 @@
     }
 
     window.onload = init;
+
+    // ── "Ver más / Ver menos" en móvil ─────────────────────────
+    function toggleTxDesc(btn) {
+        const desc = btn.previousElementSibling;
+        const isExpanded = desc.classList.contains('expanded');
+        desc.classList.toggle('expanded');
+        btn.textContent = isExpanded ? 'Ver más' : 'Ver menos';
+    }
+
+    function checkTxDescOverflow() {
+        if (window.innerWidth > 768) return;
+        document.querySelectorAll('.tx-desc').forEach(el => {
+            // Si ya tiene botón, solo actualizar su estado
+            let btn = el.nextElementSibling;
+            if (btn && btn.classList.contains('tx-ver-mas-btn')) return;
+            // Mostrar botón solo si el texto desborda las 2 líneas
+            if (el.scrollHeight > el.clientHeight + 2) {
+                btn = document.createElement('button');
+                btn.className = 'tx-ver-mas-btn';
+                btn.style.display = 'block';
+                btn.textContent = 'Ver más';
+                btn.onclick = function() { toggleTxDesc(this); };
+                el.insertAdjacentElement('afterend', btn);
+            }
+        });
+    }
 
 </script>
 
