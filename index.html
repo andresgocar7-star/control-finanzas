@@ -3130,7 +3130,7 @@
 
         const txsPeriodo = appState.transacciones.filter(t => {
             if (isCategoriaCorrecion(t.catId)) return false;
-            const d = parseDateLocal(t.fecha);
+            const d = new Date(t.fecha);
             return d >= rango.start && d <= rango.end;
         });
 
